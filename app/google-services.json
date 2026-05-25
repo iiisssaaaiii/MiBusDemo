@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "906352388356",
+    "project_id": "mibus-a1d10",
+    "storage_bucket": "mibus-a1d10.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:906352388356:android:af2a331c810f7081828851",
+        "android_client_info": {
+          "package_name": "com.example.mibusdemo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQ5aRs7k6T3sMwBFDA8NjMHykWZamHa8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
