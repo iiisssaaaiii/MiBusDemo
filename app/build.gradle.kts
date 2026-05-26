@@ -66,7 +66,6 @@ dependencies {
     // Para la utenticacion de usuario (correo/contraseña) Firebase Auth
     implementation("com.google.firebase:firebase-auth")
 
-
     // Gson para manejo de GeoJSON
     implementation("com.google.code.gson:gson:2.10.1")
 
