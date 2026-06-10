@@ -46,8 +46,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.fragment)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
@@ -66,6 +68,8 @@ dependencies {
     // Para la utenticacion de usuario (correo/contraseña) Firebase Auth
     implementation("com.google.firebase:firebase-auth")
 
+    implementation("com.google.firebase:firebase-firestore")
+
     // Gson para manejo de GeoJSON
     implementation("com.google.code.gson:gson:2.10.1")
 
@@ -77,4 +81,9 @@ dependencies {
 
     // Libreria para ktk de registerActivity
     implementation("androidx.core:core-ktx:1.13.1")
+
+    // El autocompletado del google places
+    implementation("com.google.android.libraries.places:places:3.5.0")
+
+
 }

@@ -19,7 +19,6 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-
         // Declaramos las variables para el inicio de sesión
         val etCorreo = findViewById<EditText>(R.id.etCorreo)
         val etPassword = findViewById<EditText>(R.id.etPassword)
@@ -35,17 +34,15 @@ class MainActivity : AppCompatActivity() {
                 auth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
-                            // Intent para ir a la pantalla principal desde el inicio de sesion
-                            val intent = Intent(this, principal::class.java)
+                            // Intent para ir a la pantalla principal (Paradas Cercanas)
+                            val intent = Intent(this@MainActivity, ParadasCercanasActivity::class.java)
                             startActivity(intent)
-                            finish() // Cerramos login para que no se pueda volver a atras
+                            finish() 
                         } else {
-                            // else para mostrar errores -- Debug :´c
-                            Toast.makeText(this, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@MainActivity, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                         }
                     }
             } else {
-                // Mostar mensaje el usuario para completar los campos
                 Toast.makeText(this, "Por favor, completa los campos", Toast.LENGTH_SHORT).show()
             }
         }
@@ -57,11 +54,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Si el usuario ya inició sesión, que entre directo
+    // Si el usuario ya inició sesión, que entre directo a Paradas Cercanas
     override fun onStart() {
         super.onStart()
         if (auth.currentUser != null) {
-            val intent = Intent(this, principal::class.java)
+            val intent = Intent(this, ParadasCercanasActivity::class.java)
             startActivity(intent)
             finish()
         }
