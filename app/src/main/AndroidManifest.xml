@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiBusDemo">
         <activity
+            android:name=".ParadasCercanasActivity"
+            android:exported="false" />
+        <activity
             android:name=".PlanificarViaje"
             android:exported="false" />
         <activity
