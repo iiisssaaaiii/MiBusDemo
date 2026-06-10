@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Cambiamos @android:drawable/ por @drawable/ -->
+    <item
+        android:id="@+id/nav_inicio"
+        android:title="Inicio"
+        android:icon="@drawable/ic_inicio" />
+
+    <item
+        android:id="@+id/nav_rutas"
+        android:title="Rutas"
+        android:icon="@drawable/ic_rutas" />
+
+    <item
+        android:id="@+id/nav_favoritos"
+        android:title="Favoritos"
+        android:icon="@drawable/ic_star" />
+</menu>
