@@ -12,6 +12,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
@@ -28,6 +29,10 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var destinoNombre: String
     private var destinoLat: Double = 19.5438
     private var destinoLng: Double = -96.9101
+    
+    private var origenLat: Double = 0.0
+    private var origenLng: Double = 0.0
+    
     private var rutaIdSeleccionada: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,11 +42,15 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
         destinoNombre = intent.getStringExtra(EXTRA_DESTINO_NOMBRE) ?: "Destino"
         destinoLat = intent.getDoubleExtra(EXTRA_DESTINO_LAT, destinoLat)
         destinoLng = intent.getDoubleExtra(EXTRA_DESTINO_LNG, destinoLng)
+        
+        origenLat = intent.getDoubleExtra(EXTRA_ORIGEN_LAT, 0.0)
+        origenLng = intent.getDoubleExtra(EXTRA_ORIGEN_LNG, 0.0)
+        
         rutaIdSeleccionada = intent.getStringExtra(EXTRA_RUTA_ID)
 
-        findViewById<TextView>(R.id.tvDestinoDetalle).text = destinoNombre
+        findViewById<TextView>(R.id.tvDestinoDetalle).text = "Hacia: $destinoNombre"
         findViewById<TextView>(R.id.tvOrigenDetalle).text =
-            intent.getStringExtra(EXTRA_ORIGEN_NOMBRE) ?: "Tu ubicacion actual"
+            "Desde: ${intent.getStringExtra(EXTRA_ORIGEN_NOMBRE) ?: "Tu ubicación"}"
         
         findViewById<Button>(R.id.btnCancelarViaje).setOnClickListener {
             finish()
@@ -55,15 +64,27 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
+        val origen = LatLng(origenLat, origenLng)
         val destino = LatLng(destinoLat, destinoLng)
-        val ruta = cargarRutaSeleccionada(destino)
+        
+        val ruta = buscarMejorRuta(origen, destino)
 
         googleMap.uiSettings.isZoomControlsEnabled = true
+        
+        if (origenLat != 0.0) {
+            googleMap.addMarker(
+                MarkerOptions()
+                    .position(origen)
+                    .title("Tu origen")
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+            )
+        }
+        
         googleMap.addMarker(MarkerOptions().position(destino).title(destinoNombre))
 
         if (ruta == null || ruta.puntos.isEmpty()) {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(destino, 15f))
-            findViewById<TextView>(R.id.tvRutaResumen).text = "No se encontro una ruta cercana"
+            findViewById<TextView>(R.id.tvRutaResumen).text = "No se encontró una ruta óptima"
             return
         }
 
@@ -74,147 +95,119 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
                 .width(12f)
         )
 
-        val paradaDestino = ruta.paradas.minByOrNull { distanciaMetros(it.ubicacion, destino) }
-        if (paradaDestino != null) {
-            googleMap.addMarker(
-                MarkerOptions()
-                    .position(paradaDestino.ubicacion)
-                    .title("Bajar en parada ${paradaDestino.id}")
-            )
+        val paradaSubida = ruta.paradas.minByOrNull { distanciaMetros(it.ubicacion, origen) }
+        val paradaBajada = ruta.paradas.minByOrNull { distanciaMetros(it.ubicacion, destino) }
+
+        paradaSubida?.let {
+            googleMap.addMarker(MarkerOptions().position(it.ubicacion).title("Subir aquí").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)))
+        }
+        paradaBajada?.let {
+            googleMap.addMarker(MarkerOptions().position(it.ubicacion).title("Bajar aquí").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)))
         }
 
-        val bounds = LatLngBounds.builder().apply {
-            ruta.puntos.forEach { include(it) }
-            include(destino)
-        }.build()
+        val boundsBuilder = LatLngBounds.builder()
+        ruta.puntos.forEach { boundsBuilder.include(it) }
+        boundsBuilder.include(destino)
+        if (origenLat != 0.0) boundsBuilder.include(origen)
         googleMap.setOnMapLoadedCallback {
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 80))
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 120))
         }
 
-        val distanciaCaminata = paradaDestino?.let { distanciaMetros(it.ubicacion, destino) } ?: 0.0
-        val minutosRuta = estimarMinutosRuta(ruta.puntos)
-        val minutosCaminata = estimarMinutosCaminata(distanciaCaminata)
-
-        findViewById<TextView>(R.id.tvViajeTotal).text =
-            "Viaje Total: ${minutosRuta + minutosCaminata} min Aprox."
+        // --- CÁLCULOS REALISTAS ---
+        val distCaminataOrigen = if (origenLat != 0.0 && paradaSubida != null) distanciaMetros(origen, paradaSubida.ubicacion) else 0.0
+        val distCaminataDestino = paradaBajada?.let { distanciaMetros(it.ubicacion, destino) } ?: 0.0
         
-        findViewById<TextView>(R.id.tvRutaResumen).text =
-            "${ruta.nombre}  |  ${ruta.descripcion}"
-        findViewById<TextView>(R.id.tvFrecuenciaDetalle).text =
-            "Frecuencia aprox: ${ruta.frecuenciaMin} min"
-        findViewById<TextView>(R.id.tvPaso1).text =
-            "1  Ve a la parada mas cercana de ${ruta.nombre}"
-        findViewById<TextView>(R.id.tvPaso2).text =
-            "2  Aborda ${ruta.nombre}"
-        findViewById<TextView>(R.id.tvPaso3).text =
-            "3  Baja en parada ${paradaDestino?.id ?: "sugerida"}"
-        findViewById<TextView>(R.id.tvPaso4).text =
-            "4  Camina $minutosCaminata min hacia $destinoNombre"
+        val minCaminata1 = estimarMinutosCaminata(distCaminataOrigen)
+        val minCaminata2 = estimarMinutosCaminata(distCaminataDestino)
+        
+        // Calcular tiempo de bus solo para el tramo recorrido
+        val iSubida = ruta.puntos.indexOf(ruta.puntos.minByOrNull { distanciaMetros(it, paradaSubida?.ubicacion ?: origen) })
+        val iBajada = ruta.puntos.indexOf(ruta.puntos.minByOrNull { distanciaMetros(it, paradaBajada?.ubicacion ?: destino) })
+        val minutosBus = estimarMinutosTramoBus(ruta.puntos, iSubida, iBajada)
+        
+        val tiempoEspera = ruta.frecuenciaMin / 2 // Espera promedio
+        val tiempoTotal = minCaminata1 + tiempoEspera + minutosBus + minCaminata2 + 2 // +2 min de margen
+
+        findViewById<TextView>(R.id.tvViajeTotal).text = "Tiempo total estimado: $tiempoTotal min"
+        findViewById<TextView>(R.id.tvRutaResumen).text = "Ruta: ${ruta.nombre}"
+        findViewById<TextView>(R.id.tvFrecuenciaDetalle).text = "Frecuencia: ${ruta.frecuenciaMin} min (Espera est. ${tiempoEspera} min)"
+        
+        findViewById<TextView>(R.id.tvPaso1).text = "1. Camina $minCaminata1 min a la parada"
+        findViewById<TextView>(R.id.tvPaso2).text = "2. Espera y aborda la ${ruta.nombre}"
+        findViewById<TextView>(R.id.tvPaso3).text = "3. Viaja en bus aprox. $minutosBus min"
+        findViewById<TextView>(R.id.tvPaso4).text = "4. Camina $minCaminata2 min al destino"
     }
 
-
-
-    private fun cargarRutaSeleccionada(destino: LatLng): RutaMapa? {
+    private fun buscarMejorRuta(origen: LatLng, destino: LatLng): RutaMapa? {
         val json = assets.open("middleware_base_rutas.json").bufferedReader().use { it.readText() }
         val rutasJson = JSONArray(json)
-        val rutas = mutableListOf<RutaMapa>()
+        val todasLasRutas = mutableListOf<RutaMapa>()
 
         for (i in 0 until rutasJson.length()) {
             val rutaJson = rutasJson.getJSONObject(i)
             val rutaId = rutaJson.optString("id_ruta")
-            val trazado = rutaJson.optJSONObject("trazado_geojson")
-                ?.optJSONArray("features")
-                ?.optJSONObject(0)
-                ?: continue
-
+            val trazado = rutaJson.optJSONObject("trazado_geojson")?.optJSONArray("features")?.optJSONObject(0) ?: continue
             val props = trazado.optJSONObject("properties")
-            val nombre = props?.optString("notes").orEmpty().ifBlank {
-                props?.optString("name").orEmpty().ifBlank { "Ruta $rutaId" }
-            }
-            val descripcion = props?.optString("desc").orEmpty().ifBlank { "Recorrido local" }
-            val frecuencia = props?.optInt("midday", 10) ?: 10
-
-            val coords = trazado
-                .getJSONObject("geometry")
-                .getJSONArray("coordinates")
-
+            val nombre = props?.optString("notes").orEmpty().ifBlank { props?.optString("name").orEmpty().ifBlank { "Ruta $rutaId" } }
             val puntos = mutableListOf<LatLng>()
+            val coords = trazado.getJSONObject("geometry").getJSONArray("coordinates")
             for (j in 0 until coords.length()) {
-                val punto = coords.getJSONArray(j)
-                puntos.add(LatLng(punto.getDouble(1), punto.getDouble(0)))
+                val p = coords.getJSONArray(j)
+                puntos.add(LatLng(p.getDouble(1), p.getDouble(0)))
             }
-
-            val paradas = extraerParadas(rutaJson)
-            rutas.add(RutaMapa(rutaId, nombre, descripcion, frecuencia, puntos, paradas))
+            todasLasRutas.add(RutaMapa(rutaId, nombre, props?.optInt("midday", 10) ?: 10, puntos, extraerParadas(rutaJson)))
         }
 
-        val rutaSolicitada = rutaIdSeleccionada?.let { id ->
-            rutas.firstOrNull { it.id == id }
-        }
-        if (rutaSolicitada != null) {
-            return rutaSolicitada
-        }
+        if (rutaIdSeleccionada != null) return todasLasRutas.firstOrNull { it.id == rutaIdSeleccionada }
 
-        return rutas.minByOrNull { ruta ->
-            ruta.puntos.minOfOrNull { distanciaMetros(it, destino) } ?: Double.MAX_VALUE
+        return todasLasRutas.minByOrNull { ruta ->
+            val iO = ruta.puntos.indexOf(ruta.puntos.minByOrNull { distanciaMetros(it, origen) })
+            val iD = ruta.puntos.indexOf(ruta.puntos.minByOrNull { distanciaMetros(it, destino) })
+            if (iO < iD) distanciaMetros(ruta.puntos[iO], origen) + distanciaMetros(ruta.puntos[iD], destino)
+            else Double.MAX_VALUE
         }
     }
 
     private fun extraerParadas(rutaJson: org.json.JSONObject): List<ParadaMapa> {
-        val features = rutaJson.optJSONObject("paradas_geojson")
-            ?.optJSONArray("features")
-            ?: return emptyList()
-
-        val paradas = mutableListOf<ParadaMapa>()
+        val features = rutaJson.optJSONObject("paradas_geojson")?.optJSONArray("features") ?: return emptyList()
+        val lista = mutableListOf<ParadaMapa>()
         for (i in 0 until features.length()) {
-            val feature = features.getJSONObject(i)
-            val paradaId = feature.optJSONObject("properties")?.optString("id").orEmpty()
-            val coords = feature
-                .getJSONObject("geometry")
-                .getJSONArray("coordinates")
-            paradas.add(ParadaMapa(paradaId, LatLng(coords.getDouble(1), coords.getDouble(0))))
+            val f = features.getJSONObject(i)
+            val id = f.optJSONObject("properties")?.optString("id").orEmpty()
+            val c = f.getJSONObject("geometry").getJSONArray("coordinates")
+            lista.add(ParadaMapa(id, LatLng(c.getDouble(1), c.getDouble(0))))
         }
-        return paradas
+        return lista
     }
 
-    private fun estimarMinutosRuta(puntos: List<LatLng>): Int {
-        if (puntos.size < 2) return 0
-        val distancia = puntos.zipWithNext().sumOf { (a, b) -> distanciaMetros(a, b) }
-        val metrosPorMinutoBusUrbano = 300.0
-        return (distancia / metrosPorMinutoBusUrbano).toInt().coerceAtLeast(8)
+    private fun estimarMinutosTramoBus(puntos: List<LatLng>, start: Int, end: Int): Int {
+        if (start >= end || start < 0 || end >= puntos.size) return 5
+        var dist = 0.0
+        for (i in start until end) {
+            dist += distanciaMetros(puntos[i], puntos[i+1])
+        }
+        return (dist / 180.0).toInt().coerceAtLeast(4) // 180m/min = ~11km/h (Tráfico Xalapa)
     }
 
-    private fun estimarMinutosCaminata(distanciaMetros: Double): Int {
-        val metrosPorMinutoCaminando = 80.0
-        return (distanciaMetros / metrosPorMinutoCaminando).toInt().coerceAtLeast(1)
+    private fun estimarMinutosCaminata(distancia: Double): Int {
+        return (distancia / 80.0).toInt().coerceAtLeast(1) // 80m/min caminando
     }
 
     private fun distanciaMetros(a: LatLng, b: LatLng): Double {
-        val radioTierra = 6371000.0
+        val r = 6371000.0
         val dLat = Math.toRadians(b.latitude - a.latitude)
         val dLng = Math.toRadians(b.longitude - a.longitude)
-        val lat1 = Math.toRadians(a.latitude)
-        val lat2 = Math.toRadians(b.latitude)
-        val h = sin(dLat / 2).pow(2) + cos(lat1) * cos(lat2) * sin(dLng / 2).pow(2)
-        return 2 * radioTierra * atan2(sqrt(h), sqrt(1 - h))
+        val h = sin(dLat/2).pow(2) + cos(Math.toRadians(a.latitude)) * cos(Math.toRadians(b.latitude)) * sin(dLng/2).pow(2)
+        return 2 * r * atan2(sqrt(h), sqrt(1 - h))
     }
 
-    private data class RutaMapa(
-        val id: String,
-        val nombre: String,
-        val descripcion: String,
-        val frecuenciaMin: Int,
-        val puntos: List<LatLng>,
-        val paradas: List<ParadaMapa>
-    )
-
-    private data class ParadaMapa(
-        val id: String,
-        val ubicacion: LatLng
-    )
+    private data class RutaMapa(val id: String, val nombre: String, val frecuenciaMin: Int, val puntos: List<LatLng>, val paradas: List<ParadaMapa>)
+    private data class ParadaMapa(val id: String, val ubicacion: LatLng)
 
     companion object {
         const val EXTRA_ORIGEN_NOMBRE = "extra_origen_nombre"
+        const val EXTRA_ORIGEN_LAT = "extra_origen_lat"
+        const val EXTRA_ORIGEN_LNG = "extra_origen_lng"
         const val EXTRA_DESTINO_NOMBRE = "extra_destino_nombre"
         const val EXTRA_DESTINO_LAT = "extra_destino_lat"
         const val EXTRA_DESTINO_LNG = "extra_destino_lng"
