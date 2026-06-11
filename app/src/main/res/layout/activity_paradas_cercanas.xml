@@ -8,15 +8,26 @@
     android:background="@android:color/white"
     tools:context=".ParadasCercanasActivity">
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    <!-- Map Container with Rounded Corners -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cvMapContainer"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="32dp"
+        app:cardElevation="4dp"
         app:layout_constraintBottom_toTopOf="@id/cvParadasPanel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeWidth="0dp">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvSearch"
@@ -51,12 +62,13 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvParadasPanel"
         android:layout_width="0dp"
-        android:layout_height="250dp"
+        android:layout_height="220dp"
         android:layout_marginHorizontal="14dp"
+        android:layout_marginBottom="16dp"
         app:cardBackgroundColor="@android:color/white"
         app:cardCornerRadius="22dp"
         app:cardElevation="8dp"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
+        app:layout_constraintBottom_toTopOf="@id/cardBottomNav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
@@ -101,14 +113,33 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
+    <!-- Bottom Navigation Card -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardBottomNav"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:layout_height="80dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="24dp"
+        app:cardBackgroundColor="@android:color/white"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:strokeColor="#CADEDF"
+        app:strokeWidth="1dp">
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            app:elevation="0dp"
+            app:itemIconSize="28dp"
+            app:itemIconTint="#3C4043"
+            app:itemTextColor="#3C4043"
+            app:labelVisibilityMode="labeled"
+            app:menu="@menu/bottom_nav_menu" />
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

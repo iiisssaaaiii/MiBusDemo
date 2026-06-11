@@ -20,7 +20,7 @@ object NavigationHelper {
             if (item.itemId == selectedItemId) return@setOnItemSelectedListener true
 
             val targetActivity = when (item.itemId) {
-                R.id.nav_inicio -> principal::class.java
+                R.id.nav_inicio -> ParadasCercanasActivity::class.java
                 R.id.nav_rutas -> TodasLasRutas::class.java
                 R.id.nav_favoritos -> AltertasFavs::class.java
                 else -> null
