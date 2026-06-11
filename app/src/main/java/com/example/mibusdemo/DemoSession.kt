@@ -22,9 +22,9 @@ object DemoSession {
 
     fun login(context: Context, email: String, password: String): Boolean {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val valid = prefs.getString(KEY_EMAIL, null) == email &&
-            prefs.getString(KEY_PASSWORD, null) == password
-
+        val savedEmail = prefs.getString(KEY_EMAIL, null)
+        val savedPassword = prefs.getString(KEY_PASSWORD, null)
+        val valid = savedEmail == email && savedPassword == password
         if (valid) {
             prefs.edit().putBoolean(KEY_LOGGED_IN, true).apply()
         }
@@ -38,8 +38,26 @@ object DemoSession {
 
     fun addFavorite(context: Context, name: String, lat: Double, lng: Double) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-        val favorites = prefs.getStringSet(KEY_FAVORITES, emptySet()).orEmpty().toMutableSet()
-        favorites.add("$name|$lat|$lng")
-        prefs.edit().putStringSet(KEY_FAVORITES, favorites).apply()
+        val current = prefs.getStringSet(KEY_FAVORITES, emptySet()).orEmpty().toMutableSet()
+        current.add("$name|$lat|$lng")
+        prefs.edit().putStringSet(KEY_FAVORITES, current).apply()
+    }
+
+    fun favorites(context: Context): List<FavoritePlace> {
+        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .getStringSet(KEY_FAVORITES, emptySet())
+            .orEmpty()
+            .mapNotNull { raw ->
+                val parts = raw.split("|")
+                if (parts.size != 3) return@mapNotNull null
+                FavoritePlace(parts[0], parts[1].toDoubleOrNull() ?: 0.0, parts[2].toDoubleOrNull() ?: 0.0)
+            }
+            .sortedBy { it.name }
     }
 }
+
+data class FavoritePlace(
+    val name: String,
+    val lat: Double,
+    val lng: Double
+)
