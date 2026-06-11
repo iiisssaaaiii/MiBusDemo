@@ -158,11 +158,11 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cardBottomNav"
         android:layout_width="0dp"
-        android:layout_height="80dp"
+        android:layout_height="85dp"
         android:layout_marginHorizontal="24dp"
         android:layout_marginBottom="24dp"
         app:cardBackgroundColor="@android:color/white"
-        app:cardCornerRadius="40dp"
+        app:cardCornerRadius="42dp"
         app:cardElevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -176,9 +176,7 @@
             android:layout_height="match_parent"
             android:background="@android:color/transparent"
             app:elevation="0dp"
-            app:itemIconSize="28dp"
-            app:itemIconTint="#3C4043"
-            app:itemTextColor="#3C4043"
+            app:itemIconSize="26dp"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" />
     </com.google.android.material.card.MaterialCardView>
