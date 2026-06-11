@@ -1,6 +1,10 @@
 package com.example.mibusdemo
 
 import android.content.Context
+import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 object DemoSession {
     private const val PREFS = "mi_bus_demo_session"
@@ -41,6 +45,27 @@ object DemoSession {
         val current = prefs.getStringSet(KEY_FAVORITES, emptySet()).orEmpty().toMutableSet()
         current.add("$name|$lat|$lng")
         prefs.edit().putStringSet(KEY_FAVORITES, current).apply()
+
+        // Sincronizar con Firestore si el usuario está autenticado
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val db = FirebaseFirestore.getInstance()
+            val favoriteData = mapOf(
+                "name" to name,
+                "lat" to lat,
+                "lng" to lng,
+                "timestamp" to System.currentTimeMillis()
+            )
+
+            db.collection("users")
+                .document(user.uid)
+                .collection("favorites")
+                .document(name) // Usamos el nombre como ID para evitar duplicados
+                .set(favoriteData, SetOptions.merge())
+                .addOnFailureListener {
+                    Toast.makeText(context, "Error al sincronizar con la nube", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
     fun favorites(context: Context): List<FavoritePlace> {
