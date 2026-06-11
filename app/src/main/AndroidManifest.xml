@@ -16,6 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiBusDemo">
         <activity
+            android:name=".AltertasFavs"
+            android:exported="false" />
+        <activity
+            android:name=".TodasLasRutas"
+            android:exported="false" />
+        <activity
             android:name=".ParadasCercanasActivity"
             android:exported="false" />
         <activity

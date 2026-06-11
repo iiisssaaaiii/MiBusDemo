@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.EditText
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,6 +22,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -51,6 +51,32 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
         // Tarea 3.1: Inicializar Mapa
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        // Configurar Bottom Navigation
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_inicio -> {
+                    val intent = Intent(this, principal::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_rutas -> {
+                    val intent = Intent(this, TodasLasRutas::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    startActivity(intent)
+                    true
+                }
+                R.id.nav_favoritos -> {
+                    val intent = Intent(this, AltertasFavs::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -83,7 +109,7 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun cargarParadasDesdeJson() {
-        val listaDeParadas = mutableListOf<Parada>() // Creamos una lista vacía
+        val listaDeParadas = mutableListOf<Parada>()
         try {
             val jsonString =
                 assets.open("middleware_base_rutas.json").bufferedReader().use { it.readText() }
@@ -95,30 +121,29 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
                     val features = ruta.getJSONObject("paradas_geojson").getJSONArray("features")
                     for (j in 0 until features.length()) {
                         val feature = features.getJSONObject(j)
-                        val coords = feature.getJSONObject("geometry").getJSONArray("coordinates")
-                        val lat = coords.getDouble(1)
-                        val lng = coords.getDouble(0)
-                        val idParada = feature.getJSONObject("properties").getString("id")
+                        val geometry = feature.getJSONObject("geometry")
+                        if (geometry.getString("type") == "Point") {
+                            val coords = geometry.getJSONArray("coordinates")
+                            val lat = coords.getDouble(1)
+                            val lng = coords.getDouble(0)
+                            val idParada = feature.getJSONObject("properties").getString("id")
 
-                        // 1. Creamos el objeto Parada y lo metemos a la lista
-                        listaDeParadas.add(Parada("Parada $idParada", lat, lng))
+                            listaDeParadas.add(Parada("Parada $idParada", lat, lng))
 
-                        // 2. Ponemos el marcador en el mapa
-                        mMap.addMarker(
-                            MarkerOptions().position(LatLng(lat, lng)).title("ID: $idParada")
-                        )
+                            mMap.addMarker(
+                                MarkerOptions().position(LatLng(lat, lng)).title("ID: $idParada")
+                            )
+                        }
                     }
                 }
             }
 
-            // 3. CONECTAMOS CON EL RECYCLERVIEW
             val rv = findViewById<RecyclerView>(R.id.rvParadas)
-            rv.layoutManager = LinearLayoutManager(this) // Sirve para que la lista sea vertical
-            rv.adapter = ParadaAdapter(listaDeParadas)    // Le pasamos los datos al adaptador
+            rv.layoutManager = LinearLayoutManager(this)
+            rv.adapter = ParadaAdapter(listaDeParadas)
 
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 }
-
