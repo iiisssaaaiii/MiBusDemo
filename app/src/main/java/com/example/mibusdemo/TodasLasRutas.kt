@@ -65,34 +65,12 @@ class TodasLasRutas : AppCompatActivity(), OnMapReadyCallback {
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        setupBottomNavigation()
+        NavigationHelper.setupBottomNavigation(this, R.id.nav_rutas)
         loadRoutesFromJson()
         setupSearch()
     }
 
-    private fun setupBottomNavigation() {
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigationView.selectedItemId = R.id.nav_rutas
 
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_inicio -> {
-                    startActivity(Intent(this, principal::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    })
-                    true
-                }
-                R.id.nav_rutas -> true
-                R.id.nav_favoritos -> {
-                    startActivity(Intent(this, AltertasFavs::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    })
-                    true
-                }
-                else -> false
-            }
-        }
-    }
 
     private fun loadRoutesFromJson() {
         try {

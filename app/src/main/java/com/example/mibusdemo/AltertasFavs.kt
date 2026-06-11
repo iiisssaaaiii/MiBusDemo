@@ -19,22 +19,6 @@ class AltertasFavs : AppCompatActivity() {
             insets
         }
 
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigationView.selectedItemId = R.id.nav_favoritos
-
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_inicio -> {
-                    startActivity(Intent(this, principal::class.java))
-                    true
-                }
-                R.id.nav_rutas -> {
-                    startActivity(Intent(this, TodasLasRutas::class.java))
-                    true
-                }
-                R.id.nav_favoritos -> true
-                else -> false
-            }
-        }
+        NavigationHelper.setupBottomNavigation(this, R.id.nav_favoritos)
     }
 }

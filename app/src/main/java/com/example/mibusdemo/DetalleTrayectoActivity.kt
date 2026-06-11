@@ -47,7 +47,7 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
             finish()
         }
         
-        configurarMenuInferior()
+        NavigationHelper.setupBottomNavigation(this, R.id.nav_rutas)
 
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.mapDetalle) as SupportMapFragment
@@ -112,27 +112,7 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
             "4  Camina $minutosCaminata min hacia $destinoNombre"
     }
 
-    private fun configurarMenuInferior() {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavDetalle)
-        bottomNav.selectedItemId = R.id.nav_rutas
-        bottomNav.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_inicio -> {
-                    startActivity(Intent(this, ParadasCercanasActivity::class.java))
-                    true
-                }
-                R.id.nav_rutas -> {
-                    startActivity(Intent(this, TodasLasRutas::class.java))
-                    true
-                }
-                R.id.nav_favoritos -> {
-                    Toast.makeText(this, "Favoritos y alertas lo esta trabajando tu companero", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                else -> false
-            }
-        }
-    }
+
 
     private fun cargarRutaSeleccionada(destino: LatLng): RutaMapa? {
         val json = assets.open("middleware_base_rutas.json").bufferedReader().use { it.readText() }

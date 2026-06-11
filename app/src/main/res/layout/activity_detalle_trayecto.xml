@@ -132,12 +132,12 @@
         android:backgroundTint="#FF5252"
         android:text="Cancelar viaje"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@id/bottomNavDetalle"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottomNavDetalle"
+        android:id="@+id/bottom_navigation"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@android:color/white"

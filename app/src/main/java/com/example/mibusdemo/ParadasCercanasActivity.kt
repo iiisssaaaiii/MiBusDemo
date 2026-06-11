@@ -46,35 +46,14 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
             startActivity(Intent(this, PlanificarViaje::class.java))
         }
 
-        configurarMenuInferior()
+        NavigationHelper.setupBottomNavigation(this, R.id.nav_inicio)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
     }
 
-    private fun configurarMenuInferior() {
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigationView.selectedItemId = R.id.nav_inicio
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_inicio -> true
-                R.id.nav_rutas -> {
-                    startActivity(Intent(this, TodasLasRutas::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    })
-                    true
-                }
-                R.id.nav_favoritos -> {
-                    startActivity(Intent(this, AltertasFavs::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    })
-                    true
-                }
-                else -> false
-            }
-        }
-    }
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap

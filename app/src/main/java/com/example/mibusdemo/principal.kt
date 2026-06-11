@@ -20,27 +20,7 @@ class principal : AppCompatActivity(), OnMapReadyCallback {
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigationView.selectedItemId = R.id.nav_inicio
-
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_inicio -> true
-                R.id.nav_rutas -> {
-                    val intent = Intent(this, TodasLasRutas::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_favoritos -> {
-                    val intent = Intent(this, AltertasFavs::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(intent)
-                    true
-                }
-                else -> false
-            }
-        }
+        NavigationHelper.setupBottomNavigation(this, R.id.nav_inicio)
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
