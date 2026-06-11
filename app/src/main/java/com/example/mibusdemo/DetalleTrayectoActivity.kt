@@ -42,9 +42,11 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
         findViewById<TextView>(R.id.tvDestinoDetalle).text = destinoNombre
         findViewById<TextView>(R.id.tvOrigenDetalle).text =
             intent.getStringExtra(EXTRA_ORIGEN_NOMBRE) ?: "Tu ubicacion actual"
+        
         findViewById<Button>(R.id.btnCancelarViaje).setOnClickListener {
             finish()
         }
+        
         configurarMenuInferior()
 
         val mapFragment = supportFragmentManager
@@ -95,6 +97,7 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
 
         findViewById<TextView>(R.id.tvViajeTotal).text =
             "Viaje Total: ${minutosRuta + minutosCaminata} min Aprox."
+        
         findViewById<TextView>(R.id.tvRutaResumen).text =
             "${ruta.nombre}  |  ${ruta.descripcion}"
         findViewById<TextView>(R.id.tvFrecuenciaDetalle).text =
@@ -119,6 +122,7 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
                     true
                 }
                 R.id.nav_rutas -> {
+                    startActivity(Intent(this, TodasLasRutas::class.java))
                     true
                 }
                 R.id.nav_favoritos -> {
