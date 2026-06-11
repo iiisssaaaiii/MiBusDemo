@@ -8,7 +8,7 @@
     android:background="@android:color/white"
     tools:context=".TodasLasRutas">
 
-    <!-- Search Bar Card -->
+    <!-- Title -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -16,19 +16,19 @@
         android:layout_marginTop="16dp"
         android:text="Todas las rutas"
         android:textColor="#202124"
-        android:textSize="48sp"
+        android:textSize="40sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.493"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Search Bar Card -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvSearch"
         android:layout_width="0dp"
         android:layout_height="64dp"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="24dp"
         app:cardBackgroundColor="@android:color/white"
         app:cardCornerRadius="32dp"
         app:cardElevation="4dp"
@@ -52,17 +52,19 @@
                 android:src="@drawable/ic_arrow_back"
                 app:tint="#5F6368" />
 
-            <TextView
-                android:id="@+id/tvSearchText"
+            <EditText
+                android:id="@+id/etSearch"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginHorizontal="16dp"
                 android:layout_weight="1"
-                android:ellipsize="end"
+                android:background="@null"
+                android:hint="Buscar ruta..."
+                android:imeOptions="actionSearch"
+                android:inputType="text"
                 android:maxLines="1"
-                android:text="Facultad de Estadística e i..."
                 android:textColor="#202124"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
 
             <ImageView
                 android:id="@+id/ivClose"
@@ -71,6 +73,7 @@
                 android:layout_marginEnd="16dp"
                 android:contentDescription="Clear"
                 android:src="@drawable/ic_close"
+                android:visibility="gone"
                 app:tint="#5F6368" />
 
             <ImageView
@@ -83,7 +86,22 @@
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Result Info Card -->
+    <!-- Search Results RecyclerView (Overlay) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvSearchResults"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        android:maxHeight="300dp"
+        android:padding="8dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cvSearch" />
+
+    <!-- Result Info Card (Selected Route Info) -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvResultInfo"
         android:layout_width="0dp"
@@ -96,7 +114,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cvSearch"
-        app:strokeWidth="0dp">
+        app:strokeWidth="0dp"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -106,6 +125,7 @@
             android:padding="20dp">
 
             <ImageView
+                android:id="@+id/ivResultIcon"
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_location_hub"
@@ -121,7 +141,7 @@
                     android:id="@+id/tvLocationName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Facultad de Estadística e informática"
+                    android:text="Nombre de la ruta"
                     android:textColor="#202124"
                     android:textSize="20sp"
                     android:textStyle="bold" />
@@ -133,23 +153,19 @@
                     android:layout_marginTop="4dp"
                     android:ellipsize="end"
                     android:maxLines="1"
-                    android:text="Av. Xalapa s/n, Obrero Campesina, 91020..."
+                    android:text="Descripción..."
                     android:textColor="#5F6368"
-                    android:textSize="16sp" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
-
-    <!-- Filter Button -->
-
-    <!-- Map Container -->
 
     <Button
         android:id="@+id/btnFiltrar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="20dp"
         android:backgroundTint="#2487D4"
         android:paddingHorizontal="32dp"
         android:paddingVertical="14dp"
@@ -161,6 +177,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/cvResultInfo" />
 
+    <!-- Map Container -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvMapContainer"
         android:layout_width="0dp"
