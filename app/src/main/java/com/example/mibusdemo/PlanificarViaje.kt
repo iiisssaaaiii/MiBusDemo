@@ -60,13 +60,13 @@ class PlanificarViaje : AppCompatActivity() {
 
         findViewById<Button>(R.id.btn_anadir_favoritos).setOnClickListener {
             val nombre = destinoNombre
-            val lat = destinoLat
-            val lng = destinoLng
-            if (nombre == null || lat == null || lng == null) {
+            val origen = findViewById<TextInputEditText>(R.id.etOrigen).text.toString().trim()
+            
+            if (nombre == null) {
                 Toast.makeText(this, "Primero selecciona un destino", Toast.LENGTH_SHORT).show()
             } else {
-                DemoSession.addFavorite(this, nombre, lat, lng)
-                Toast.makeText(this, "$nombre agregado a favoritos", Toast.LENGTH_SHORT).show()
+                DemoSession.addFavoriteRoute(this, if (origen.isEmpty()) "Mi ubicación" else origen, nombre)
+                Toast.makeText(this, "Ruta guardada en favoritos", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -118,7 +118,7 @@ class PlanificarViaje : AppCompatActivity() {
                 }
                 R.id.nav_rutas -> true
                 R.id.nav_favoritos -> {
-                    Toast.makeText(this, "Favoritos y alertas lo esta trabajando tu companero", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, AltertasFavs::class.java))
                     true
                 }
                 else -> false
