@@ -34,10 +34,7 @@
                 android:textSize="28sp"
                 android:textStyle="bold" />
 
-            <androidx.fragment.app.FragmentContainerView
-                android:id="@+id/mapDetalle"
-                android:name="com.google.android.gms.maps.SupportMapFragment"
-!-- Map Container with Rounded Corners (Unified Design) -->
+            <!-- Map Container with Rounded Corners (Unified Design) -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cvMapContainer"
                 android:layout_width="match_parent"
@@ -184,6 +181,6 @@
             app:itemTextColor="#3C4043"
             app:labelVisibilityMode="labeled"
             app:menu="@menu/bottom_nav_menu" />
-    </com.google.android.material.card.MaterialCardView        app:menu="@menu/bottom_nav_menu" />
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

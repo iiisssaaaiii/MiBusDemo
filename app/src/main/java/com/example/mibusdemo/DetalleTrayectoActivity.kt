@@ -5,9 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -113,20 +111,18 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
             googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 120))
         }
 
-        // --- CÁLCULOS REALISTAS ---
         val distCaminataOrigen = if (origenLat != 0.0 && paradaSubida != null) distanciaMetros(origen, paradaSubida.ubicacion) else 0.0
         val distCaminataDestino = paradaBajada?.let { distanciaMetros(it.ubicacion, destino) } ?: 0.0
         
         val minCaminata1 = estimarMinutosCaminata(distCaminataOrigen)
         val minCaminata2 = estimarMinutosCaminata(distCaminataDestino)
         
-        // Calcular tiempo de bus solo para el tramo recorrido
         val iSubida = ruta.puntos.indexOf(ruta.puntos.minByOrNull { distanciaMetros(it, paradaSubida?.ubicacion ?: origen) })
         val iBajada = ruta.puntos.indexOf(ruta.puntos.minByOrNull { distanciaMetros(it, paradaBajada?.ubicacion ?: destino) })
         val minutosBus = estimarMinutosTramoBus(ruta.puntos, iSubida, iBajada)
         
-        val tiempoEspera = ruta.frecuenciaMin / 2 // Espera promedio
-        val tiempoTotal = minCaminata1 + tiempoEspera + minutosBus + minCaminata2 + 2 // +2 min de margen
+        val tiempoEspera = ruta.frecuenciaMin / 2
+        val tiempoTotal = minCaminata1 + tiempoEspera + minutosBus + minCaminata2 + 2
 
         findViewById<TextView>(R.id.tvViajeTotal).text = "Tiempo total estimado: $tiempoTotal min"
         findViewById<TextView>(R.id.tvRutaResumen).text = "Ruta: ${ruta.nombre}"
@@ -186,11 +182,11 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
         for (i in start until end) {
             dist += distanciaMetros(puntos[i], puntos[i+1])
         }
-        return (dist / 180.0).toInt().coerceAtLeast(4) // 180m/min = ~11km/h (Tráfico Xalapa)
+        return (dist / 180.0).toInt().coerceAtLeast(4)
     }
 
     private fun estimarMinutosCaminata(distancia: Double): Int {
-        return (distancia / 80.0).toInt().coerceAtLeast(1) // 80m/min caminando
+        return (distancia / 80.0).toInt().coerceAtLeast(1)
     }
 
     private fun distanciaMetros(a: LatLng, b: LatLng): Double {
@@ -200,22 +196,6 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
         val h = sin(dLat/2).pow(2) + cos(Math.toRadians(a.latitude)) * cos(Math.toRadians(b.latitude)) * sin(dLng/2).pow(2)
         return 2 * r * atan2(sqrt(h), sqrt(1-h))
     }
-
-<<<<<<< HEAD
-
-=======
-    private fun configurarMenuInferior() {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavDetalle)
-        bottomNav.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_inicio -> { startActivity(Intent(this, ParadasCercanasActivity::class.java)); true }
-                R.id.nav_rutas -> { startActivity(Intent(this, TodasLasRutas::class.java)); true }
-                R.id.nav_favoritos -> { startActivity(Intent(this, AltertasFavs::class.java)); true }
-                else -> false
-            }
-        }
-    }
->>>>>>> master
 
     private data class RutaMapa(val id: String, val nombre: String, val frecuenciaMin: Int, val puntos: List<LatLng>, val paradas: List<ParadaMapa>)
     private data class ParadaMapa(val id: String, val ubicacion: LatLng)
