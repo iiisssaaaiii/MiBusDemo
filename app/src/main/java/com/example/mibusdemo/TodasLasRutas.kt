@@ -54,7 +54,6 @@ class TodasLasRutas : AppCompatActivity(), OnMapReadyCallback {
             insets
         }
 
-        // Inicializar componentes de UI
         etSearch = findViewById(R.id.etSearch)
         rvSearchResults = findViewById(R.id.rvSearchResults)
         cvResultInfo = findViewById(R.id.cvResultInfo)
@@ -77,7 +76,7 @@ class TodasLasRutas : AppCompatActivity(), OnMapReadyCallback {
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_inicio -> {
-                    startActivity(Intent(this, principal::class.java).apply {
+                    startActivity(Intent(this, ParadasCercanasActivity::class.java).apply {
                         addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                     })
                     true
@@ -122,7 +121,6 @@ class TodasLasRutas : AppCompatActivity(), OnMapReadyCallback {
                         val nameMatch = trazadoProps?.name?.contains(query, ignoreCase = true) == true
                         val descMatch = trazadoProps?.desc?.contains(query, ignoreCase = true) == true
                         
-                        // Buscar también en paradas
                         val paradaMatch = route.paradasGeojson?.features?.any { 
                             it.properties.name?.contains(query, ignoreCase = true) == true ||
                             it.properties.desc?.contains(query, ignoreCase = true) == true
@@ -171,7 +169,6 @@ class TodasLasRutas : AppCompatActivity(), OnMapReadyCallback {
         val boundsBuilder = LatLngBounds.Builder()
         var hayDatos = false
 
-        // Dibujar el trazado de la ruta (ROJO)
         route.trazadoGeojson.features.forEach { feature ->
             if (feature.geometry.type == "LineString") {
                 val polyOptions = PolylineOptions().width(12f).color(Color.RED).geodesic(true)
@@ -187,7 +184,6 @@ class TodasLasRutas : AppCompatActivity(), OnMapReadyCallback {
             }
         }
         
-        // Dibujar las paradas de la ruta
         route.paradasGeojson?.features?.forEach { feature ->
             if (feature.geometry.type == "Point") {
                 @Suppress("UNCHECKED_CAST")

@@ -33,10 +33,13 @@
         app:layout_constraintTop_toBottomOf="@id/tvTituloPlanificar">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilOrigen"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Origen"
+            app:endIconMode="custom"
+            app:endIconDrawable="@android:drawable/ic_menu_mylocation"
             app:boxCornerRadiusBottomEnd="6dp"
             app:boxCornerRadiusBottomStart="6dp"
             app:boxCornerRadiusTopEnd="6dp"
@@ -47,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:text="Tu ubicacion actual" />
+                android:hint="Cargando ubicación..." />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
