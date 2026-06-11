@@ -2,8 +2,8 @@ package com.example.mibusdemo
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log // Lo importe para ver errores en el logcat -- Debug :´c
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -21,41 +21,43 @@ class RegisterActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // Inicializar botones
+        val etNombre = findViewById<EditText>(R.id.etNombre)
         val etCorreo = findViewById<EditText>(R.id.etCorreoCC)
         val etPassword = findViewById<EditText>(R.id.etPasswordCC)
+        val etConfirmarPassword = findViewById<EditText>(R.id.etConfirmarPasswordInput)
+        val cbTerminos = findViewById<CheckBox>(R.id.cbTerminosCondiciones)
         val btnCrearCuenta = findViewById<Button>(R.id.btnCrearCuenta)
         val btnTengoCuenta = findViewById<Button>(R.id.btnTengoCuenta)
 
-        // Logica de crear cuenta
         btnCrearCuenta.setOnClickListener {
+            val name = etNombre.text.toString().trim()
             val email = etCorreo.text.toString().trim()
             val password = etPassword.text.toString().trim()
+            val confirmPassword = etConfirmarPassword.text.toString().trim()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
-                        if (task.isSuccessful) {
-                            Toast.makeText(this, "Cuenta creada con éxito", Toast.LENGTH_SHORT)
-                                .show()
-                            val intent = Intent(this, MainActivity::class.java)
-                            startActivity(intent)
-                            finish()
-                        } else {
-                            val error = task.exception?.message ?: "Error desconocido"
-                            Toast.makeText(this, "Error: $error", Toast.LENGTH_LONG).show()
-                            Log.e("MiBusAuth", "Fallo al registrar: $error")
-                        }
-                    }
-            } else {
-                Toast.makeText(this, "Por favor, llena todos los campos", Toast.LENGTH_SHORT).show()
+            when {
+                name.isBlank() || email.isBlank() || password.isBlank() || confirmPassword.isBlank() ->
+                    Toast.makeText(this, "Completa todos los campos", Toast.LENGTH_SHORT).show()
+                password != confirmPassword ->
+                    Toast.makeText(this, "Las contrasenas no coinciden", Toast.LENGTH_SHORT).show()
+                !cbTerminos.isChecked ->
+                    Toast.makeText(this, "Acepta terminos y condiciones", Toast.LENGTH_SHORT).show()
+                else -> crearCuenta(name, email, password)
             }
         }
 
-        // Logica del boton de ya tengo una cuenta
         btnTengoCuenta.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
         }
+    }
+
+    private fun crearCuenta(name: String, email: String, password: String) {
+        DemoSession.register(this, name, email, password)
+        Toast.makeText(this, "Cuenta creada", Toast.LENGTH_SHORT).show()
+        startActivity(Intent(this, ParadasCercanasActivity::class.java))
+        finish()
+
+        auth.createUserWithEmailAndPassword(email, password)
     }
 }

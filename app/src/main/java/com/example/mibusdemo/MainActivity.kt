@@ -19,48 +19,53 @@ class MainActivity : AppCompatActivity() {
 
         auth = FirebaseAuth.getInstance()
 
-        // Declaramos las variables para el inicio de sesión
         val etCorreo = findViewById<EditText>(R.id.etCorreo)
         val etPassword = findViewById<EditText>(R.id.etPassword)
         val btnInicioSesion = findViewById<Button>(R.id.btnInicioSesion)
         val tvRegistrarse = findViewById<TextView>(R.id.tvRegistrarse)
 
-        // Logica del boton de inicio de sesion
         btnInicioSesion.setOnClickListener {
             val email = etCorreo.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this) { task ->
-                        if (task.isSuccessful) {
-                            // Intent para ir a la pantalla principal (Paradas Cercanas)
-                            val intent = Intent(this@MainActivity, ParadasCercanasActivity::class.java)
-                            startActivity(intent)
-                            finish() 
-                        } else {
-                            Toast.makeText(this@MainActivity, "Error: ${task.exception?.message}", Toast.LENGTH_LONG).show()
-                        }
-                    }
-            } else {
-                Toast.makeText(this, "Por favor, completa los campos", Toast.LENGTH_SHORT).show()
+            if (email.isBlank() || password.isBlank()) {
+                Toast.makeText(this, "Completa correo y contrasena", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            if (DemoSession.login(this, email, password)) {
+                abrirInicio()
+                return@setOnClickListener
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        abrirInicio()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "No se pudo entrar. Revisa tu cuenta o crea una nueva.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
+                }
         }
 
-        // Logica del boton de registrarse
         tvRegistrarse.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 
-    // Si el usuario ya inició sesión, que entre directo a Paradas Cercanas
     override fun onStart() {
         super.onStart()
-        if (auth.currentUser != null) {
-            val intent = Intent(this, ParadasCercanasActivity::class.java)
-            startActivity(intent)
-            finish()
+        if (auth.currentUser != null || DemoSession.isLoggedIn(this)) {
+            abrirInicio()
         }
+    }
+
+    private fun abrirInicio() {
+        startActivity(Intent(this, ParadasCercanasActivity::class.java))
+        finish()
     }
 }
