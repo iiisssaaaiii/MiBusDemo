@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.EditText
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,6 +24,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import org.json.JSONArray
 
 class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -34,60 +36,39 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
         enableEdgeToEdge()
         setContentView(R.layout.activity_paradas_cercanas)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { view, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(bars.left, bars.top, bars.right, 0)
             insets
         }
 
         findViewById<EditText>(R.id.etSearch).setOnClickListener {
             startActivity(Intent(this, PlanificarViaje::class.java))
         }
+
         configurarMenuInferior()
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        // Configurar Bottom Navigation
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigationView.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_inicio -> {
-                    val intent = Intent(this, principal::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_rutas -> {
-                    val intent = Intent(this, TodasLasRutas::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(intent)
-                    true
-                }
-                R.id.nav_favoritos -> {
-                    val intent = Intent(this, AltertasFavs::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(intent)
-                    true
-                }
-                else -> false
-            }
-        }
     }
 
     private fun configurarMenuInferior() {
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
-        bottomNav.selectedItemId = R.id.nav_inicio
-        bottomNav.setOnItemSelectedListener { item ->
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.selectedItemId = R.id.nav_inicio
+        bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_inicio -> true
                 R.id.nav_rutas -> {
+                    startActivity(Intent(this, TodasLasRutas::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    })
                     true
                 }
                 R.id.nav_favoritos -> {
-                    Toast.makeText(this, "Favoritos y alertas lo esta trabajando tu companero", Toast.LENGTH_SHORT).show()
+                    startActivity(Intent(this, AltertasFavs::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    })
                     true
                 }
                 else -> false
@@ -97,22 +78,24 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
+        mMap.uiSettings.isZoomControlsEnabled = false
+        moverCamaraAXalapa()
         verificarPermisosYUbicar()
         cargarParadasDesdeJson()
     }
 
     private fun verificarPermisosYUbicar() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        val fineLocationGranted = ActivityCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (!fineLocationGranted) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                1000
+                LOCATION_PERMISSION_REQUEST
             )
-            moverCamaraAXalapa()
             return
         }
 
@@ -120,15 +103,13 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
             if (location != null) {
                 val miUbicacion = LatLng(location.latitude, location.longitude)
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(miUbicacion, 15f))
-            } else {
-                moverCamaraAXalapa()
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(miUbicacion, 15f))
             }
         }
     }
 
     private fun moverCamaraAXalapa() {
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(19.5438, -96.9101), 13f))
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(XALAPA_CENTRO, 13f))
     }
 
     private fun cargarParadasDesdeJson() {
@@ -139,33 +120,38 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
 
             for (i in 0 until rutasArray.length()) {
                 val ruta = rutasArray.getJSONObject(i)
-                if (!ruta.isNull("paradas_geojson")) {
-                    val features = ruta.getJSONObject("paradas_geojson").getJSONArray("features")
-                    for (j in 0 until features.length()) {
-                        val feature = features.getJSONObject(j)
-                        val geometry = feature.getJSONObject("geometry")
-                        if (geometry.getString("type") == "Point") {
-                            val coords = geometry.getJSONArray("coordinates")
-                            val lat = coords.getDouble(1)
-                            val lng = coords.getDouble(0)
-                            val idParada = feature.getJSONObject("properties").getString("id")
+                val features = ruta.optJSONObject("paradas_geojson")
+                    ?.optJSONArray("features")
+                    ?: continue
 
-                            listaDeParadas.add(Parada("Parada $idParada", lat, lng))
+                for (j in 0 until features.length()) {
+                    val feature = features.getJSONObject(j)
+                    val geometry = feature.getJSONObject("geometry")
+                    if (geometry.optString("type") != "Point") continue
 
-                            mMap.addMarker(
-                                MarkerOptions().position(LatLng(lat, lng)).title("ID: $idParada")
-                            )
-                        }
-                    }
+                    val coords = geometry.getJSONArray("coordinates")
+                    val lat = coords.getDouble(1)
+                    val lng = coords.getDouble(0)
+                    val idParada = feature.optJSONObject("properties")?.optString("id").orEmpty()
+                    val nombreParada = "Parada $idParada"
+                    val posicion = LatLng(lat, lng)
+
+                    listaDeParadas.add(Parada(nombreParada, lat, lng))
+                    mMap.addMarker(MarkerOptions().position(posicion).title(nombreParada))
                 }
             }
 
-            val rv = findViewById<RecyclerView>(R.id.rvParadas)
-            rv.layoutManager = LinearLayoutManager(this)
-            rv.adapter = ParadaAdapter(listaDeParadas)
-
+            findViewById<RecyclerView>(R.id.rvParadas).apply {
+                layoutManager = LinearLayoutManager(this@ParadasCercanasActivity)
+                adapter = ParadaAdapter(listaDeParadas.take(20))
+            }
         } catch (e: Exception) {
             Toast.makeText(this, "No se pudieron cargar las paradas", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST = 1000
+        private val XALAPA_CENTRO = LatLng(19.5438, -96.9101)
     }
 }
