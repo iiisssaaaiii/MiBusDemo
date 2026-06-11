@@ -198,8 +198,24 @@ class DetalleTrayectoActivity : AppCompatActivity(), OnMapReadyCallback {
         val dLat = Math.toRadians(b.latitude - a.latitude)
         val dLng = Math.toRadians(b.longitude - a.longitude)
         val h = sin(dLat/2).pow(2) + cos(Math.toRadians(a.latitude)) * cos(Math.toRadians(b.latitude)) * sin(dLng/2).pow(2)
-        return 2 * r * atan2(sqrt(h), sqrt(1 - h))
+        return 2 * r * atan2(sqrt(h), sqrt(1-h))
     }
+
+<<<<<<< HEAD
+
+=======
+    private fun configurarMenuInferior() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavDetalle)
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_inicio -> { startActivity(Intent(this, ParadasCercanasActivity::class.java)); true }
+                R.id.nav_rutas -> { startActivity(Intent(this, TodasLasRutas::class.java)); true }
+                R.id.nav_favoritos -> { startActivity(Intent(this, AltertasFavs::class.java)); true }
+                else -> false
+            }
+        }
+    }
+>>>>>>> master
 
     private data class RutaMapa(val id: String, val nombre: String, val frecuenciaMin: Int, val puntos: List<LatLng>, val paradas: List<ParadaMapa>)
     private data class ParadaMapa(val id: String, val ubicacion: LatLng)

@@ -8,46 +8,42 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class AltertasFavs : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_altertas_favs)
-        
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Cargamos la lógica de listas heredada del compañero
+<<<<<<< HEAD
+        NavigationHelper.setupBottomNavigation(this, R.id.nav_favoritos)
+=======
         configurarListaFavoritos()
         configurarListaAlertas()
-        
-        // Usamos tu NavigationHelper para mantener la persistencia y diseño unificado
-        NavigationHelper.setupBottomNavigation(this, R.id.nav_favoritos)
+        configurarMenuInferior()
     }
 
     private fun configurarListaFavoritos() {
         val listView = findViewById<ListView>(R.id.listView)
-        
-        // Combinamos favoritos de lugares (lat/lng) y rutas guardadas
-        val lugaresFavoritos = DemoSession.favorites(this).map { it.name }
         val rutasFavoritas = DemoSession.getFavoriteRoutes(this)
-        val listaTotal = lugaresFavoritos + rutasFavoritas
 
         val adapter = ArrayAdapter(
             this,
             android.R.layout.simple_list_item_1,
-            listaTotal
+            rutasFavoritas
         )
         listView.adapter = adapter
     }
 
     private fun configurarListaAlertas() {
         val listViewAlertas = findViewById<ListView>(R.id.listViewAlertas)
-        val alertas = listOf("Reparación en tesorería", "Reparación en Av. Xalapa", "Bloqueo en Zona UV")
+        val alertas = listOf("Reparacion en tesorería", "Reparacion en Av. Xalapa")
 
         val adapter = ArrayAdapter(
             this,
@@ -55,5 +51,30 @@ class AltertasFavs : AppCompatActivity() {
             alertas
         )
         listViewAlertas.adapter = adapter
+    }
+
+    private fun configurarMenuInferior() {
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.selectedItemId = R.id.nav_favoritos
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_inicio -> {
+                    startActivity(Intent(this, ParadasCercanasActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    })
+                    true
+                }
+                R.id.nav_rutas -> {
+                    startActivity(Intent(this, TodasLasRutas::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    })
+                    true
+                }
+                R.id.nav_favoritos -> true
+                else -> false
+            }
+        }
+>>>>>>> master
     }
 }

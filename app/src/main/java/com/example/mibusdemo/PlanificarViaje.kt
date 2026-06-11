@@ -51,7 +51,7 @@ class PlanificarViaje : AppCompatActivity() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         
         sugerencias.addAll(cargarSugerenciasLocales())
-        NavigationHelper.setupBottomNavigation(this, R.id.nav_rutas)
+        configurarMenuInferior()
         configurarDestino()
         configurarAcciones()
         
@@ -268,7 +268,24 @@ class PlanificarViaje : AppCompatActivity() {
         )
     }
 
-
+    private fun configurarMenuInferior() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavPlanificar)
+        bottomNav.selectedItemId = R.id.nav_rutas
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_inicio -> {
+                    startActivity(Intent(this, ParadasCercanasActivity::class.java))
+                    true
+                }
+                R.id.nav_rutas -> true
+                R.id.nav_favoritos -> {
+                    startActivity(Intent(this, AltertasFavs::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
+    }
 
     private fun cargarSugerenciasLocales(): List<DestinoSugerido> {
         val destinos = linkedMapOf(
