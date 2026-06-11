@@ -36,19 +36,17 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
             insets
         }
 
-        // Configurar clic en barra de búsqueda para ir a Planificar
         findViewById<EditText>(R.id.etSearch).setOnClickListener {
             startActivity(Intent(this, PlanificarViaje::class.java))
         }
+        configurarMenuInferior()
 
-        // Tarea 1.2: Inicializar cliente de ubicación
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        // Tarea 3.1: Inicializar Mapa
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
@@ -79,6 +77,24 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun configurarMenuInferior() {
+        val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNav)
+        bottomNav.selectedItemId = R.id.nav_inicio
+        bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_inicio -> true
+                R.id.nav_rutas -> {
+                    true
+                }
+                R.id.nav_favoritos -> {
+                    Toast.makeText(this, "Favoritos y alertas lo esta trabajando tu companero", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         verificarPermisosYUbicar()
@@ -96,6 +112,7 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 1000
             )
+            moverCamaraAXalapa()
             return
         }
 
@@ -104,16 +121,21 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
             if (location != null) {
                 val miUbicacion = LatLng(location.latitude, location.longitude)
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(miUbicacion, 15f))
+            } else {
+                moverCamaraAXalapa()
             }
         }
+    }
+
+    private fun moverCamaraAXalapa() {
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(19.5438, -96.9101), 13f))
     }
 
     private fun cargarParadasDesdeJson() {
         val listaDeParadas = mutableListOf<Parada>()
         try {
-            val jsonString =
-                assets.open("middleware_base_rutas.json").bufferedReader().use { it.readText() }
-            val rutasArray = org.json.JSONArray(jsonString)
+            val jsonString = assets.open("middleware_base_rutas.json").bufferedReader().use { it.readText() }
+            val rutasArray = JSONArray(jsonString)
 
             for (i in 0 until rutasArray.length()) {
                 val ruta = rutasArray.getJSONObject(i)
@@ -143,7 +165,7 @@ class ParadasCercanasActivity : AppCompatActivity(), OnMapReadyCallback {
             rv.adapter = ParadaAdapter(listaDeParadas)
 
         } catch (e: Exception) {
-            e.printStackTrace()
+            Toast.makeText(this, "No se pudieron cargar las paradas", Toast.LENGTH_SHORT).show()
         }
     }
 }

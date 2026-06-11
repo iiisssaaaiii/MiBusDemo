@@ -39,16 +39,44 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/cvParadasPanel"
+        app:layout_constraintBottom_toTopOf="@id/cvParadasPanel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etSearch" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cvSearch"
+        android:layout_width="0dp"
+        android:layout_height="56dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginTop="36dp"
+        app:cardBackgroundColor="#F5F5F5"
+        app:cardCornerRadius="18dp"
+        app:cardElevation="6dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:drawableStart="@android:drawable/ic_menu_mylocation"
+            android:drawablePadding="10dp"
+            android:focusable="false"
+            android:hint="A donde vas?"
+            android:inputType="none"
+            android:paddingHorizontal="18dp"
+            android:textColor="#202124"
+            android:textColorHint="#5F6368"
+            android:textSize="16sp" />
+    </com.google.android.material.card.MaterialCardView>
 
     <!-- Panel Inferior de Paradas -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/cvParadasPanel"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="250dp"
         app:cardCornerRadius="20dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation">
@@ -57,21 +85,39 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="18dp">
+
+            <View
+                android:layout_width="36dp"
+                android:layout_height="3dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="14dp"
+                android:background="#5F6368" />
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Paradas Cercanas"
+                android:textColor="#202124"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Cerca de ti "
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="10dp"
+                android:text="A tu ubicación"
+                android:textColor="#5F6368"
+                android:textSize="15sp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvParadas"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:listitem="@android:layout/simple_list_item_1" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                tools:listitem="@layout/item_parada" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
@@ -79,6 +125,7 @@
         android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

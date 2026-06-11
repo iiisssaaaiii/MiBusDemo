@@ -5,99 +5,105 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:padding="24dp"
     tools:context=".MainActivity">
-
-    <TextView
-        android:id="@+id/tvInicioSesion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Iniciar Sesión"
-        android:textSize="34sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.263" />
 
     <ImageView
         android:id="@+id/imgLogo"
-        android:layout_width="231dp"
-        android:layout_height="114dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="130dp"
+        android:layout_height="78dp"
+        android:contentDescription="Mi Bus"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toTopOf="@id/tvInicioSesion"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.067"
+        app:layout_constraintVertical_chainStyle="packed"
         app:srcCompat="@drawable/logomibus" />
+
+    <TextView
+        android:id="@+id/tvInicioSesion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="Iniciar Sesion"
+        android:textColor="#202124"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@id/etCorreo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imgLogo" />
 
     <EditText
         android:id="@+id/etCorreo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text"
-        android:text="Correo electronico"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="42dp"
+        android:background="@android:drawable/edit_text"
+        android:hint="Correo Electronico"
+        android:inputType="textEmailAddress"
+        android:paddingHorizontal="14dp"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/etPassword"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.415" />
+        app:layout_constraintTop_toBottomOf="@id/tvInicioSesion" />
+
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="10dp"
+        android:background="@android:drawable/edit_text"
+        android:hint="Contrasena"
+        android:inputType="textPassword"
+        android:paddingHorizontal="14dp"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@id/btnInicioSesion"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etCorreo" />
 
     <Button
         android:id="@+id/btnInicioSesion"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#0052CC"
-        android:text="Iniciar Sesión"
-        android:textColorLink="#0022E4"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="174dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#1E88E5"
+        android:text="Iniciar Sesion"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toTopOf="@id/tvRegistrarse"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.606" />
+        app:layout_constraintTop_toBottomOf="@id/etPassword" />
 
     <TextView
         android:id="@+id/tvRegistrarse"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="44dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
         android:text="Registrarse"
-        android:textColor="#0052CC"
+        android:textColor="#1E88E5"
         android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/tvRecuperarPassword"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.699" />
+        app:layout_constraintTop_toBottomOf="@id/btnInicioSesion" />
 
     <TextView
         android:id="@+id/tvRecuperarPassword"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Olvidé mi contraseña"
-        android:textColor="#0052CC"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:text="Olvide mi contrasena"
+        android:textColor="#1E88E5"
         android:textSize="16sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.777" />
-
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/tvRegistrarse" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
